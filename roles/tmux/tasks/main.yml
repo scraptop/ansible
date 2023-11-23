@@ -1,0 +1,40 @@
+---
+- name: Install packages
+  ansible.builtin.package:
+    name: "{{ tmux_packages }}"
+    state: "{{ tmux_packages_state }}"
+  tags: install
+
+- name: Configure tmux
+  tags: configure
+  block:
+
+    - name: Create configuration directory
+      ansible.builtin.file:
+        dest: "~/{{ tmux_conf_dir }}"
+        state: directory
+
+    - name: Manage configuration content
+      ansible.builtin.copy:
+        content: "{{ tmux_conf_literal }}"
+        dest: "{{ tmux_conf_file }}"
+      when: tmux_conf_literal is defined
+
+    - name: Manage configuration template
+      ansible.builtin.template:
+        src: templates/tmux.conf.j2
+        dest: "{{ tmux_conf_file }}"
+        force: "{{ tmux_conf_force }}"
+
+    - name: Create plugin directory
+      ansible.builtin.file:
+        dest: "{{ tmux_plugin_dir }}"
+        state: directory
+
+    - name: Install plugins
+      ansible.builtin.git:
+        repo: "{{ item['repo'] }}"
+        dest: "{{ tmux_plugin_dir }}/{{ item['name'] }}"
+        version: "{{ item['version'] }}"
+        force: yes
+      with_items: "{{ tmux_plugins }}"

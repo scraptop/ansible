@@ -1,0 +1,74 @@
+# {{ ansible_managed }}
+
+# --------------------- COLORS ---------------------------
+set -g default-terminal "screen-256color"
+
+# --------------------- LEADER KEY -----------------------
+set -g prefix C-a
+unbind C-b
+bind-key C-a send-prefix
+
+# --------------------- WINDOW SPLITTING -----------------
+unbind %
+bind | split-window -h -c "#{pane_current_path}"
+
+unbind '"'
+bind - split-window -v -c "#{pane_current_path}"
+
+unbind r
+bind r source-file ~/.tmux.conf
+
+# --------------------- PANE RESIZING ---------------------
+bind -r j resize-pane -D 5
+bind -r k resize-pane -U 5
+bind -r l resize-pane -R 5
+bind -r h resize-pane -L 5
+
+bind -r m resize-pane -Z
+
+# --------------------- MOUSE MODE -----------------------
+set -g mouse on
+
+# --------------------- COPY MODE -----------------------
+bind v copy-mode
+set-window-option -g mode-keys vi
+
+# Copy mode differs on different systems
+{% if wsl %}
+
+bind-key -T copy-mode-vi 'v' send -X begin-selection # start selecting text with "v"
+bind-key -T copy-mode-vi 'y' send -X copy-selection # copy text with "y"
+
+{% else %}
+
+# set-clipboard off because of gnome terminal
+set -g set-clipboard off
+bind-key -T copy-mode-vi 'v' send -X begin-selection # start selecting text with "v"
+bind-key -T copy-mode-vi 'y' send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i"
+
+{% endif %}
+
+
+unbind -T copy-mode-vi MouseDragEnd1Pane # don't exit copy mode when dragging with mouse
+
+
+# --------------------- Misc -------------------------------
+# remove delay for exiting insert mode with ESC in Neovim
+set -sg escape-time 10
+
+
+# --------------------- Pane and window indexing -----------
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+
+# --------------------- Tmux plugins -----------------------
+set -g @plugin 'egel/tmux-gruvbox'
+set -g @tmux-gruvbox 'dark' # or 'light'
+
+set -g @plugin 'tmux-plugins/tmux-sidebar'
+set -g @sidebar-tree-command 'tree -C'
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
