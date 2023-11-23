@@ -1,6 +1,9 @@
 # ansible
 All things ansible
 
+# Install ansible
+sudo apt install ansible
+
 # Usage
 Install ansible, then
 
