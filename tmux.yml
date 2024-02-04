@@ -3,4 +3,7 @@
   connection: local
 
   roles:
-    - tmux
+    - role: tmux
+      wsl: true
+      become: true
+
